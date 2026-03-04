@@ -57,49 +57,36 @@ res.send("Database Error");
 
 /* ================= PRODUCTS STOCK API ================= */
 
-app.get("/products-stock", async (req,res)=>{
+/* ================= PRODUCTS STOCK API ================= */
 
-try{
+app.get("/products-stock", async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT
+                p.code,
+                p.name,
+                -- Calculate stock: receive adds, dispatch subtracts
+                COALESCE(SUM(
+                    CASE 
+                        WHEN t.type = 'receive' THEN COALESCE(t.total_quantity, 0)
+                        WHEN t.type = 'dispatch' THEN -COALESCE(t.total_quantity, 0)
+                        ELSE 0
+                    END
+                ), 0) AS stock
+            FROM products_master p
+            LEFT JOIN transactions t
+                ON p.code = t.code
+            GROUP BY p.code, p.name
+            ORDER BY p.code ASC;
+        `);
 
-const [rows]=await db.query(`
+        res.json(rows); // Negative stock is now included correctly
 
-SELECT
-p.code,
-p.name,
-
-IFNULL(
-SUM(
-CASE
-WHEN t.type='receive' THEN t.total_quantity
-WHEN t.type='dispatch' THEN -t.total_quantity
-ELSE 0
-END
-),0) AS stock
-
-FROM products_master p
-
-LEFT JOIN transactions t
-ON p.code = t.code
-
-GROUP BY p.code, p.name
-
-ORDER BY p.code ASC;
-
-`);
-
-res.json(rows);
-
-}
-
-catch(err){
-
-console.log(err);
-res.status(500).send("Database Error");
-
-}
-
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Database Error");
+    }
 });
-
 
 
 /* ================= FINAL STOCK DOWNLOAD ================= */
