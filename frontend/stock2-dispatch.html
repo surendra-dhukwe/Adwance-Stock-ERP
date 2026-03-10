@@ -13,6 +13,14 @@
 
 <h2>Stock 2 Dispatch</h2>
 
+<!-- DATE SELECTOR ADDED -->
+<div class="date-box">
+
+<label for="receiveDate">Select Date:</label>
+<input type="date" id="receiveDate" value="<?php echo date('Y-m-d'); ?>">
+
+</div>
+
 <input type="text" id="party" placeholder="Party Name">
 <input type="text" id="invoice" placeholder="Invoice Number">
 
@@ -43,6 +51,30 @@ Insert Row
 <button onclick="saveTransaction()">DONE</button>
 
 <script>
+
+    // ================= CURRENT DATE AUTOSET =================
+window.addEventListener("DOMContentLoaded", () => {
+    const dateInput = document.getElementById("receiveDate");
+
+    if (dateInput) {
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0"); // month is 0-indexed
+        const dd = String(today.getDate()).padStart(2, "0");
+        const currentDate = `${yyyy}-${mm}-${dd}`;
+
+        // Set input value to today
+        dateInput.value = currentDate;
+
+        // Optional: store selected date globally or in localStorage
+        dateInput.addEventListener("change", (e) => {
+            console.log("Selected Date:", e.target.value);
+            // You can store this date for later use
+            localStorage.setItem("selectedDate", e.target.value);
+        });
+    }
+});
 
 function addRow(){
 

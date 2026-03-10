@@ -19,11 +19,11 @@
 
 <div class="options">
 
-<button class="dispatchBtn" onclick="openPage('dispatch')">
+<button class="dispatchBtn" onclick="openDispatch()">
 🚚 Dispatch
 </button>
 
-<button class="receiveBtn" onclick="openPage('receive')">
+<button class="receiveBtn" onclick="openReceive()">
 📥 Receiving
 </button>
 
@@ -39,30 +39,21 @@
 
 <script>
 
-/* OPEN PAGE */
+function openDispatch(){
 
-function openPage(type){
-
-if(type === "dispatch"){
-
-window.location.href = "/stock2-dispatch.html";
+window.location.href = "stock2-dispatch.html";
 
 }
 
-else if(type === "receive"){
+function openReceive(){
 
-window.location.href = "/stock2-receive.html";
-
-}
+window.location.href = "stock2-receive.html";
 
 }
-
-
-/* BACK */
 
 function goHome(){
 
-window.location.href = "/index.html";
+window.location.href = "dashboard.html";
 
 }
 

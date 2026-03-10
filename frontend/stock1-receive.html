@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>Stock1 Receive</title>
+<title>Receiving Entry</title>
 
 <link rel="stylesheet" href="css/style.css">
 
@@ -10,9 +10,29 @@
 
 <body>
 
-<h2>Stock 1 Receive</h2>
+<h2 id="pageTitle">Receiving Entry</h2>
 
-<button onclick="addRow()">Insert Row</button>
+<!-- DATE SELECTOR ADDED -->
+<div class="date-box">
+
+<label for="receiveDate">Select Date:</label>
+<input type="date" id="receiveDate" value="<?php echo date('Y-m-d'); ?>">
+
+</div>
+
+
+<input type="text" id="party" placeholder="Party Name">
+
+<input type="text" id="invoice" placeholder="Invoice Number">
+
+<textarea id="note" placeholder="Note"></textarea>
+
+
+<button onclick="addRow()" class="insertRowBtn">
+Insert Row
+</button>
+
+
 
 <table id="itemTable">
 
@@ -21,106 +41,101 @@
 <tr>
 
 <th>Code</th>
+
 <th>Name</th>
+
 <th>Bags</th>
+
 <th>Quantity</th>
+
 <th>Total Quantity</th>
 
 </tr>
 
 </thead>
 
+
 <tbody></tbody>
+
+
+<tfoot>
+
+<tr>
+
+<td colspan="2">TOTAL</td>
+
+<td id="totalBags">0</td>
+
+<td></td>
+
+<td id="grandTotalQty">0</td>
+
+</tr>
+
+</tfoot>
 
 </table>
 
+
+
 <button onclick="saveTransaction()">DONE</button>
+
+<button onclick="downloadExcel()">Download Excel</button>
+
+
 
 <script>
 
-function addRow(){
+    // ================= CURRENT DATE AUTOSET =================
+window.addEventListener("DOMContentLoaded", () => {
+    const dateInput = document.getElementById("receiveDate");
 
-const table=document.querySelector("#itemTable tbody");
+    if (dateInput) {
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0"); // month is 0-indexed
+        const dd = String(today.getDate()).padStart(2, "0");
+        const currentDate = `${yyyy}-${mm}-${dd}`;
 
-const row=table.insertRow();
+        // Set input value to today
+        dateInput.value = currentDate;
 
-row.innerHTML=`
-
-<td><input></td>
-<td><input></td>
-<td><input type="number"></td>
-<td><input type="number"></td>
-<td class="total">0</td>
-
-`;
-
-row.querySelectorAll("input").forEach(input=>{
-input.addEventListener("input",calculateRow);
+        // Optional: store selected date globally or in localStorage
+        dateInput.addEventListener("change", (e) => {
+            console.log("Selected Date:", e.target.value);
+            // You can store this date for later use
+            localStorage.setItem("selectedDate", e.target.value);
+        });
+    }
 });
 
-}
+/* ================= TYPE ================= */
 
-function calculateRow(e){
+localStorage.setItem("type","receive");
 
-const row=e.target.closest("tr");
 
-const bags=row.cells[2].querySelector("input").value||0;
+/* ================= STOCK CHECK ================= */
 
-const qty=row.cells[3].querySelector("input").value||0;
+const stock = localStorage.getItem("stock") || "stock1";
 
-row.querySelector(".total").innerText=bags*qty;
 
-}
+/* PAGE TITLE CHANGE */
 
-function saveTransaction(){
+document.getElementById("pageTitle").innerText =
+stock.toUpperCase()+" Receiving Entry";
 
-const rows=document.querySelectorAll("#itemTable tbody tr");
 
-let data=[];
+/* ================= DATE ================= */
 
-rows.forEach(r=>{
+const today = new Date().toISOString().split("T")[0];
 
-data.push({
-
-code:r.cells[0].querySelector("input").value,
-name:r.cells[1].querySelector("input").value,
-totalQty:r.querySelector(".total").innerText
-
-});
-
-});
-
-fetch("http://localhost:3000/transactions/stock1",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-type:"receive",
-
-items:data
-
-})
-
-})
-
-.then(res=>res.json())
-
-.then(()=>{
-
-alert("Receive Saved");
-
-location.reload();
-
-});
-
-}
+document.getElementById("entryDate").value = today;
 
 </script>
+
+
+<script src="js/app.js"></script>
 
 </body>
 </html>
