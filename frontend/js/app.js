@@ -2,6 +2,14 @@
 
 let products = [];
 
+/* Detect stock type from URL */
+
+let stockType = "stock1";
+
+if(window.location.pathname.toLowerCase().includes("stock2")){
+    stockType = "stock2";
+}
+
 /* Load product list from DB */
 
 fetch("http://localhost:3000/products")
@@ -62,7 +70,7 @@ const nameCell=row.insertCell(1);
 
 const nameInput=document.createElement("input");
 
-nameInput.type="text";   // manual allowed
+nameInput.type="text";
 
 nameInput.placeholder="Name";
 
@@ -234,8 +242,6 @@ row.cells[4].querySelector("input").value=total.toFixed(2);
 updateTotals();
 
 
-/* ENTER = NEW ROW */
-
 if(event.key==="Enter"){
 
 addRow();
@@ -291,11 +297,8 @@ let type=localStorage.getItem("type");
 if(!type){
 
 if(window.location.pathname.includes("dispatch"))
-
 type="dispatch";
-
 else
-
 type="receive";
 
 }
@@ -307,22 +310,15 @@ const entryDate=document.getElementById("entryDate").value;
 document.querySelectorAll("#itemTable tbody tr").forEach(row=>{
 
 const code=row.cells[0].querySelector("input").value;
-
 const name=row.cells[1].querySelector("input").value;
-
 const totalQty=row.cells[4].querySelector("input").value;
-
 
 if(code){
 
 items.push({
-
 code:code,
-
 name:name,
-
 totalQty:totalQty
-
 });
 
 }
@@ -330,14 +326,12 @@ totalQty:totalQty
 });
 
 
-fetch("http://localhost:3000/transactions",{
+fetch(`http://localhost:3000/transactions/${stockType}`,{
 
 method:"POST",
 
 headers:{
-
 "Content-Type":"application/json"
-
 },
 
 body:JSON.stringify({
@@ -374,7 +368,7 @@ console.log(err);
 
 function downloadExcel(){
 
-fetch("http://localhost:3000/final-stock/download")
+fetch(`http://localhost:3000/final-stock/${stockType}/download`)
 
 .then(res=>res.blob())
 
@@ -386,11 +380,10 @@ let a=document.createElement("a");
 
 a.href=url;
 
-a.download="final_stock.csv";
+a.download=`${stockType}_final_stock.csv`;
 
 a.click();
 
 });
-
 
 }

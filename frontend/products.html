@@ -4,15 +4,31 @@
 <head>
 
 <title>Products List</title>
+
 <link rel="stylesheet" href="css/style.css">
 
 </head>
 
 <body>
 
-
-
 <h2>Products List</h2>
+
+
+<!-- STOCK SELECT -->
+
+<div class="stockSelect">
+
+<label>Select Stock :</label>
+
+<select id="stockSelect" onchange="loadProducts()">
+
+<option value="stock1">Stock 1</option>
+
+<option value="stock2">Stock 2</option>
+
+</select>
+
+</div>
 
 
 
@@ -74,18 +90,20 @@ onkeyup="searchProduct()"
 
 
 
-
 <script>
 
 
 let allProducts=[];
 
 
-/* LOAD PRODUCTS */
+
+/* ================= LOAD PRODUCTS ================= */
 
 function loadProducts(){
 
-fetch("http://localhost:3000/products-stock")
+const stock=document.getElementById("stockSelect").value;
+
+fetch(`http://localhost:3000/products-stock/${stock}`)
 
 .then(res=>res.json())
 
@@ -107,7 +125,7 @@ alert("Server Not Running");
 
 
 
-/* SHOW TABLE */
+/* ================= SHOW TABLE ================= */
 
 function showTable(data){
 
@@ -140,7 +158,7 @@ ${p.stock}
 
 
 
-/* SEARCH */
+/* ================= SEARCH ================= */
 
 function searchProduct(){
 
@@ -164,7 +182,7 @@ showTable(filtered);
 
 
 
-/* ADD PRODUCT */
+/* ================= ADD PRODUCT ================= */
 
 function addProduct(){
 
@@ -205,6 +223,8 @@ loadProducts();
 }
 
 
+
+/* ================= PAGE LOAD ================= */
 
 loadProducts();
 

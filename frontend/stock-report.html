@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <title>Stock Transactions Report</title>
+
 <link rel="stylesheet" href="css/style.css">
 
 </head>
@@ -10,15 +13,40 @@
 
 <h2>Stock Transactions Report</h2>
 
+
+<!-- STOCK SELECT -->
+
+<div class="stockSelect">
+
+<label>Select Stock :</label>
+
+<select id="stockSelect" onchange="loadTransactions()">
+
+<option value="stock1">Stock 1</option>
+
+<option value="stock2">Stock 2</option>
+
+</select>
+
+</div>
+
+
+
+<!-- SEARCH -->
+
 <div class="searchBox">
 
-<input type="text"
+<input
+type="text"
 id="searchInput"
-placeholder="Search Code, Name, Types and Date"
+placeholder="Search Code, Name, Type or Date"
 onkeyup="filterTable()">
 
 </div>
 
+
+
+<!-- TABLE -->
 
 <table id="reportTable">
 
@@ -29,7 +57,7 @@ onkeyup="filterTable()">
 <th onclick="sortTable(0)">Code</th>
 <th onclick="sortTable(1)">Name</th>
 <th onclick="sortTable(2)">Quantity</th>
-<th onclick="sortTable(3)">Types</th>
+<th onclick="sortTable(3)">Type</th>
 <th onclick="sortTable(4)">Date</th>
 
 </tr>
@@ -46,19 +74,70 @@ onkeyup="filterTable()">
 
 <script>
 
-/* LOAD DATA */
+let allData=[];
 
-window.onload=function(){
 
-fetch("http://localhost:3000/all-transactions")
+/* ================= LOAD TRANSACTIONS ================= */
 
-.then(res=>res.json())
+function loadTransactions(){
+
+const stock=document.getElementById("stockSelect").value;
+
+fetch(`http://localhost:3000/all-transactions/${stock}`)
+
+.then(res=>{
+
+if(!res.ok){
+
+throw new Error("Server Error");
+
+}
+
+return res.json();
+
+})
 
 .then(data=>{
+
+allData=data;
+
+showTable(data);
+
+})
+
+.catch(err=>{
+
+console.log(err);
+
+alert("Server Not Running or API Error");
+
+});
+
+}
+
+
+
+/* ================= SHOW TABLE ================= */
+
+function showTable(data){
 
 const table=document.querySelector("#reportTable tbody");
 
 table.innerHTML="";
+
+
+if(data.length===0){
+
+table.innerHTML=`<tr>
+
+<td colspan="5">No Transactions Found</td>
+
+</tr>`;
+
+return;
+
+}
+
 
 data.forEach(item=>{
 
@@ -88,82 +167,68 @@ ${new Date(item.entry_date).toLocaleString()}
 
 });
 
-});
-
-};
+}
 
 
 
-/* SEARCH */
+/* ================= SEARCH ================= */
 
 function filterTable(){
 
-const input=document.getElementById("searchInput");
+const text=document.getElementById("searchInput").value.toLowerCase();
 
-const filter=input.value.toLowerCase();
+const filtered=allData.filter(item =>
 
-const rows=document.querySelectorAll("#reportTable tbody tr");
+item.code.toLowerCase().includes(text) ||
 
-rows.forEach(row=>{
+item.name.toLowerCase().includes(text) ||
 
-const code=row.cells[0].innerText.toLowerCase();
-const name=row.cells[1].innerText.toLowerCase();
-const qty=row.cells[2].innerText.toLowerCase();
-const type=row.cells[3].innerText.toLowerCase();
-const date=row.cells[4].innerText.toLowerCase();
+item.type.toLowerCase().includes(text) ||
 
-if(
+item.total_quantity.toString().includes(text) ||
 
-code.includes(filter) ||
+new Date(item.entry_date).toLocaleString().toLowerCase().includes(text)
 
-name.includes(filter) ||
+);
 
-qty.includes(filter) ||
-
-type.includes(filter) ||
-
-date.includes(filter)
-
-){
-
-row.style.display="";
-
-}
-else{
-
-row.style.display="none";
-
-}
-
-});
+showTable(filtered);
 
 }
 
 
 
-/* SORT */
+/* ================= SORT ================= */
 
 function sortTable(n){
 
-const table=document.getElementById("reportTable");
-
-let rows=Array.from(table.rows).slice(1);
+const rows=Array.from(document.querySelectorAll("#reportTable tbody tr"));
 
 rows.sort((a,b)=>{
 
 let x=a.cells[n].innerText;
+
 let y=b.cells[n].innerText;
 
 return x.localeCompare(y,undefined,{numeric:true});
 
 });
 
-rows.forEach(row=>table.appendChild(row));
+const tbody=document.querySelector("#reportTable tbody");
+
+tbody.innerHTML="";
+
+rows.forEach(r=>tbody.appendChild(r));
 
 }
 
 
+
+/* ================= PAGE LOAD ================= */
+
+window.onload=loadTransactions;
+
 </script>
 
 </body>
+
 </html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Stock 2</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+
+<body>
+
+<div class="page">
+
+<h2>📦 Stock 2</h2>
+
+<div class="options">
+
+<button class="dispatchBtn" onclick="openPage('dispatch')">
+🚚 Dispatch
+</button>
+
+<button class="receiveBtn" onclick="openPage('receive')">
+📥 Receiving
+</button>
+
+</div>
+
+<br>
+
+<button class="backBtn" onclick="goHome()">
+⬅ Back
+</button>
+
+</div>
+
+<script>
+
+/* OPEN PAGE */
+
+function openPage(type){
+
+if(type === "dispatch"){
+
+window.location.href = "/stock2-dispatch.html";
+
+}
+
+else if(type === "receive"){
+
+window.location.href = "/stock2-receive.html";
+
+}
+
+}
+
+
+/* BACK */
+
+function goHome(){
+
+window.location.href = "/index.html";
+
+}
+
+</script>
+
+</body>
+
+</html>

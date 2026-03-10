@@ -1,10 +1,36 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
-<title>Login</title>
+<title>Stock ERP Login</title>
 
 <link rel="stylesheet" href="css/style.css">
+
+<style>
+
+.captcha-box{
+display:flex;
+gap:10px;
+margin-top:10px;
+}
+
+#captchaText{
+background:#222;
+color:#fff;
+padding:8px 15px;
+font-weight:bold;
+letter-spacing:3px;
+border-radius:4px;
+user-select:none;
+}
+
+.refreshBtn{
+cursor:pointer;
+padding:8px 12px;
+}
+
+</style>
 
 </head>
 
@@ -18,6 +44,23 @@
 
 <input type="password" id="password" placeholder="Password">
 
+
+<!-- CAPTCHA SHOW -->
+
+<div class="captcha-box">
+
+<div id="captchaText"></div>
+
+<button onclick="generateCaptcha()" class="refreshBtn">
+↻
+</button>
+
+</div>
+
+
+<input type="text" id="captchaInput" placeholder="Enter Captcha">
+
+
 <button onclick="login()" class="loginBtn">
 Login
 </button>
@@ -27,7 +70,36 @@ Login
 
 <script>
 
-/* LOGIN FUNCTION */
+/* ================= CAPTCHA GENERATE ================= */
+
+let captcha="";
+
+function generateCaptcha(){
+
+const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+captcha="";
+
+for(let i=0;i<5;i++){
+
+captcha+=chars.charAt(
+Math.floor(Math.random()*chars.length)
+);
+
+}
+
+document.getElementById("captchaText").innerText=captcha;
+
+}
+
+
+/* PAGE LOAD CAPTCHA */
+
+generateCaptcha();
+
+
+
+/* ================= LOGIN FUNCTION ================= */
 
 function login(){
 
@@ -35,8 +107,23 @@ const username=document.getElementById("username").value;
 
 const password=document.getElementById("password").value;
 
+const captchaInput=document.getElementById("captchaInput").value;
 
-/* CHECK USERNAME PASSWORD */
+
+/* CAPTCHA CHECK */
+
+if(captchaInput !== captcha){
+
+alert("Captcha Incorrect");
+
+generateCaptcha();
+
+return;
+
+}
+
+
+/* USERNAME PASSWORD CHECK */
 
 if(username==="Admin" && password==="Admin@123"){
 
@@ -57,4 +144,5 @@ alert("Invalid Username or Password");
 </script>
 
 </body>
+
 </html>

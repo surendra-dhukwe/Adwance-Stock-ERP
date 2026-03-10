@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Stock 2 Receive</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+<h2>Stock 2 Receive</h2>
+
+<button onclick="addRow()" class="insertRowBtn">
+Insert Row
+</button>
+
+<table id="itemTable">
+
+<thead>
+
+<tr>
+
+<th>Code</th>
+<th>Name</th>
+<th>Bags</th>
+<th>Quantity</th>
+<th>Total Quantity</th>
+
+</tr>
+
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+<button onclick="saveTransaction()">DONE</button>
+
+<script>
+
+function addRow(){
+
+const table=document.querySelector("#itemTable tbody");
+
+const row=table.insertRow();
+
+row.innerHTML=`
+
+<td><input></td>
+<td><input></td>
+<td><input type="number"></td>
+<td><input type="number"></td>
+<td class="total">0</td>
+
+`;
+
+row.querySelectorAll("input").forEach(input=>{
+input.addEventListener("input",calculateRow);
+});
+
+}
+
+
+
+function calculateRow(e){
+
+const row=e.target.closest("tr");
+
+const bags=row.cells[2].querySelector("input").value || 0;
+
+const qty=row.cells[3].querySelector("input").value || 0;
+
+row.querySelector(".total").innerText=bags*qty;
+
+}
+
+
+
+function saveTransaction(){
+
+const rows=document.querySelectorAll("#itemTable tbody tr");
+
+let data=[];
+
+rows.forEach(r=>{
+
+data.push({
+
+code:r.cells[0].querySelector("input").value,
+name:r.cells[1].querySelector("input").value,
+totalQty:r.querySelector(".total").innerText
+
+});
+
+});
+
+fetch("http://localhost:3000/transactions/stock2",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+type:"receive",
+items:data
+
+})
+
+})
+
+.then(res=>res.json())
+
+.then(()=>{
+
+alert("Stock2 Receive Saved");
+
+location.reload();
+
+});
+
+}
+
+</script>
+
+</body>
+
+</html>
