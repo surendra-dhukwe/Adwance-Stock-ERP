@@ -3,28 +3,28 @@
 
 <head>
 
-<title>Products List</title>
+<title id="productsPageTitle">Products List</title>
 
 <link rel="stylesheet" href="css/style.css">
 
 </head>
 
-<body>
+<body id="productsPage" class="products-page">
 
-<h2>Products List</h2>
+<h2 id="productsHeading" class="page-heading">Products List</h2>
 
 
 <!-- STOCK SELECT -->
 
-<div class="stockSelect">
+<div class="stockSelect" id="stockSelectBox">
 
-<label>Select Stock :</label>
+<label id="stockLabel">Select Stock :</label>
 
-<select id="stockSelect" onchange="loadProducts()">
+<select id="stockSelect" class="stock-dropdown" onchange="loadProducts()">
 
-<option value="stock1">Stock 1</option>
+<option value="stock1" class="stock-option">Stock 1</option>
 
-<option value="stock2">Stock 2</option>
+<option value="stock2" class="stock-option">Stock 2</option>
 
 </select>
 
@@ -34,15 +34,15 @@
 
 <!-- ADD ITEM -->
 
-<div class="addBox">
+<div class="addBox" id="addProductBox">
 
-<h3>Add Item</h3>
+<h3 id="addItemHeading" class="section-title">Add Item</h3>
 
-<input id="code" placeholder="Code">
+<input id="code" class="input-code" placeholder="Code">
 
-<input id="name" placeholder="Name">
+<input id="name" class="input-name" placeholder="Name">
 
-<button class="addItemBtn" onclick="addProduct()">
+<button id="addItemBtn" class="addItemBtn add-product-btn" onclick="addProduct()">
 Add Item
 </button>
 
@@ -52,10 +52,11 @@ Add Item
 
 <!-- SEARCH -->
 
-<div class="searchBox">
+<div class="searchBox" id="searchBox">
 
 <input
 id="search"
+class="search-input"
 placeholder="Search Code or Name"
 onkeyup="searchProduct()"
 >
@@ -66,23 +67,23 @@ onkeyup="searchProduct()"
 
 <!-- TABLE -->
 
-<table id="table">
+<table id="table" class="products-table">
 
-<thead>
+<thead id="productsTableHead">
 
-<tr>
+<tr class="table-header-row">
 
-<th>Code</th>
+<th id="thCode" class="table-header">Code</th>
 
-<th>Name</th>
+<th id="thName" class="table-header">Name</th>
 
-<th>Stock</th>
+<th id="thStock" class="table-header">Stock</th>
 
 </tr>
 
 </thead>
 
-<tbody>
+<tbody id="productsTableBody">
 
 </tbody>
 
@@ -90,7 +91,7 @@ onkeyup="searchProduct()"
 
 
 
-<script>
+<script id="productsScript">
 
 
 let allProducts=[];
@@ -138,13 +139,15 @@ data.forEach(p=>{
 
 const row=table.insertRow();
 
+row.className="product-row";
+
 row.innerHTML=`
 
-<td>${p.code}</td>
+<td class="product-code">${p.code}</td>
 
-<td>${p.name}</td>
+<td class="product-name">${p.name}</td>
 
-<td class="${p.stock>=0?'stockGreen':'stockRed'}">
+<td class="product-stock ${p.stock>=0?'stockGreen':'stockRed'}">
 
 ${p.stock}
 

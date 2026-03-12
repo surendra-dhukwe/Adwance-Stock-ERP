@@ -3,28 +3,28 @@
 
 <head>
 
-<title>Stock Transactions Report</title>
+<title id="reportPageTitle">Stock Transactions Report</title>
 
 <link rel="stylesheet" href="css/style.css">
 
 </head>
 
-<body>
+<body id="reportPage" class="report-page">
 
-<h2>Stock Transactions Report</h2>
+<h2 id="reportHeading" class="page-heading">Stock Transactions Report</h2>
 
 
 <!-- STOCK SELECT -->
 
-<div class="stockSelect">
+<div class="stockSelect" id="reportStockSelectBox">
 
-<label>Select Stock :</label>
+<label id="reportStockLabel">Select Stock :</label>
 
-<select id="stockSelect" onchange="loadTransactions()">
+<select id="stockSelect" class="stock-dropdown report-stock-dropdown" onchange="loadTransactions()">
 
-<option value="stock1">Stock 1</option>
+<option value="stock1" class="stock-option">Stock 1</option>
 
-<option value="stock2">Stock 2</option>
+<option value="stock2" class="stock-option">Stock 2</option>
 
 </select>
 
@@ -34,11 +34,12 @@
 
 <!-- SEARCH -->
 
-<div class="searchBox">
+<div class="searchBox" id="reportSearchBox">
 
 <input
 type="text"
 id="searchInput"
+class="report-search-input"
 placeholder="Search Code, Name, Type or Date"
 onkeyup="filterTable()">
 
@@ -48,23 +49,27 @@ onkeyup="filterTable()">
 
 <!-- TABLE -->
 
-<table id="reportTable">
+<table id="reportTable" class="transactions-table">
 
-<thead>
+<thead id="reportTableHead">
 
-<tr>
+<tr class="report-header-row">
 
-<th onclick="sortTable(0)">Code</th>
-<th onclick="sortTable(1)">Name</th>
-<th onclick="sortTable(2)">Quantity</th>
-<th onclick="sortTable(3)">Type</th>
-<th onclick="sortTable(4)">Date</th>
+<th id="thReportCode" class="report-th" onclick="sortTable(0)">Code</th>
+
+<th id="thReportName" class="report-th" onclick="sortTable(1)">Name</th>
+
+<th id="thReportQty" class="report-th" onclick="sortTable(2)">Quantity</th>
+
+<th id="thReportType" class="report-th" onclick="sortTable(3)">Type</th>
+
+<th id="thReportDate" class="report-th" onclick="sortTable(4)">Date</th>
 
 </tr>
 
 </thead>
 
-<tbody>
+<tbody id="reportTableBody" class="report-tbody">
 
 </tbody>
 
@@ -72,7 +77,7 @@ onkeyup="filterTable()">
 
 
 
-<script>
+<script id="reportScript">
 
 let allData=[];
 
@@ -128,9 +133,9 @@ table.innerHTML="";
 
 if(data.length===0){
 
-table.innerHTML=`<tr>
+table.innerHTML=`<tr class="no-data-row">
 
-<td colspan="5">No Transactions Found</td>
+<td colspan="5" class="no-data-cell">No Transactions Found</td>
 
 </tr>`;
 
@@ -143,21 +148,23 @@ data.forEach(item=>{
 
 const row=table.insertRow();
 
+row.className="report-row";
+
 row.innerHTML=`
 
-<td>${item.code}</td>
+<td class="report-code">${item.code}</td>
 
-<td>${item.name}</td>
+<td class="report-name">${item.name}</td>
 
-<td>${item.total_quantity}</td>
+<td class="report-qty">${item.total_quantity}</td>
 
-<td class="${item.type=='dispatch'?'dispatch':'receive'}">
+<td class="report-type ${item.type=='dispatch'?'dispatch':'receive'}">
 
 ${item.type}
 
 </td>
 
-<td>
+<td class="report-date">
 
 ${new Date(item.entry_date).toLocaleString()}
 

@@ -3,7 +3,7 @@
 
 <head>
 
-<title>Stock 2</title>
+<title id="stock2PageTitle">Stock 2</title>
 
 <link rel="stylesheet" href="css/style.css">
 
@@ -11,19 +11,19 @@
 
 </head>
 
-<body>
+<body id="stock2Page" class="stock-page stock2-page">
 
-<div class="page">
+<div class="page stock-container" id="stock2Container">
 
-<h2>📦 Stock 2</h2>
+<h2 id="stock2Heading" class="stock-heading">📦 Stock 2</h2>
 
-<div class="options">
+<div class="options stock-options" id="stock2Options">
 
-<button class="dispatchBtn" onclick="openDispatch()">
+<button class="dispatchBtn dispatch-btn stock-dispatch-btn" id="stock2DispatchBtn" onclick="openDispatch()">
 🚚 Dispatch
 </button>
 
-<button class="receiveBtn" onclick="openReceive()">
+<button class="receiveBtn receive-btn stock-receive-btn" id="stock2ReceiveBtn" onclick="openReceive()">
 📥 Receiving
 </button>
 
@@ -31,29 +31,46 @@
 
 <br>
 
-<button class="backBtn" onclick="goHome()">
+<button class="backBtn back-btn stock-back-btn" id="stock2BackBtn" onclick="goHome()">
 ⬅ Back
 </button>
 
 </div>
 
-<script>
+<script id="stock2Script">
+
+/* ================= SET STOCK ================= */
+
+localStorage.setItem("stock","stock2");
+
+
+/* ================= DISPATCH ================= */
 
 function openDispatch(){
 
-window.location.href = "stock2-dispatch.html";
+localStorage.setItem("type","dispatch");
+
+window.location.href="stock2-dispatch.html";
 
 }
+
+
+/* ================= RECEIVE ================= */
 
 function openReceive(){
 
-window.location.href = "stock2-receive.html";
+localStorage.setItem("type","receive");
+
+window.location.href="stock2-receive.html";
 
 }
 
+
+/* ================= BACK ================= */
+
 function goHome(){
 
-window.location.href = "dashboard.html";
+window.location.href="dashboard.html";
 
 }
 
@@ -62,3 +79,4 @@ window.location.href = "dashboard.html";
 </body>
 
 </html>
+```
