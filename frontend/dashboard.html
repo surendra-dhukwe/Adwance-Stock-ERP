@@ -34,6 +34,10 @@ cursor:pointer;
 margin-right:15px;
 }
 
+.topbar h3{
+flex:1;
+}
+
 /* LAYOUT */
 
 .container{
@@ -122,6 +126,97 @@ cursor:pointer;
 background:#1e40af;
 }
 
+/* LOGOUT BUTTON */
+
+.logoutBtn{
+padding:8px 16px;
+background:#dc2626;
+border:none;
+color:white;
+border-radius:6px;
+cursor:pointer;
+font-weight:600;
+transition:.3s;
+}
+
+.logoutBtn:hover{
+background:#b91c1c;
+transform:scale(1.05);
+}
+
+/* CONFIRM OVERLAY */
+
+.confirm-overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:999;
+}
+
+/* CONFIRM BOX */
+
+.confirm-box{
+background:#1f2937;
+padding:25px;
+border-radius:10px;
+text-align:center;
+width:300px;
+color:white;
+animation:fadePop .3s ease;
+}
+
+.confirm-box h3{
+margin-bottom:10px;
+}
+
+.confirm-box p{
+margin-bottom:20px;
+color:#ccc;
+}
+
+.confirm-buttons{
+display:flex;
+justify-content:center;
+gap:10px;
+}
+
+.cancelBtn{
+padding:8px 16px;
+border:none;
+background:#6b7280;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.confirmBtn{
+padding:8px 16px;
+border:none;
+background:#ef4444;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* ANIMATION */
+
+@keyframes fadePop{
+from{
+opacity:0;
+transform:scale(.8);
+}
+to{
+opacity:1;
+transform:scale(1);
+}
+}
+
 </style>
 
 </head>
@@ -136,6 +231,8 @@ background:#1e40af;
 
 <h3>Stock ERP Dashboard</h3>
 
+<button onclick="openLogoutConfirm()" class="logoutBtn">Logout</button>
+
 </div>
 
 <div class="container">
@@ -146,57 +243,31 @@ background:#1e40af;
 
 <h3>Stock ERP</h3>
 
-<button onclick="openPage('dashboard.html')">
-Dashboard
-</button>
+<button onclick="openPage('dashboard.html')">Dashboard</button>
 
-<!-- STOCK MENU -->
-
-<button onclick="toggleStockMenu()">
-Stock ▼
-</button>
+<button onclick="toggleStockMenu()">Stock ▼</button>
 
 <div id="stockMenu" class="submenu">
 
-<button onclick="openPage('stock1.html')">
-Stock 1
-</button>
+<button onclick="openPage('stock1.html')">Stock 1</button>
 
-<button onclick="openPage('stock2.html')">
-Stock 2
-</button>
+<button onclick="openPage('stock2.html')">Stock 2</button>
 
 </div>
 
-<button onclick="openPage('products.html')">
-Products
-</button>
+<button onclick="openPage('products.html')">Products</button>
 
-<button onclick="openPage('stock-report.html')">
-Stock Report
-</button>
+<button onclick="openPage('stock-report.html')">Stock Report</button>
 
-<!-- DOWNLOAD MENU -->
-
-<button onclick="toggleDownloadMenu()">
-Download ▼
-</button>
+<button onclick="toggleDownloadMenu()">Download ▼</button>
 
 <div id="downloadMenu" class="submenu">
 
-<button onclick="downloadStock('stock1')">
-Download Stock 1
-</button>
+<button onclick="downloadStock('stock1')">Download Stock 1</button>
 
-<button onclick="downloadStock('stock2')">
-Download Stock 2
-</button>
+<button onclick="downloadStock('stock2')">Download Stock 2</button>
 
 </div>
-
-<button onclick="logout()">
-Logout
-</button>
 
 </div>
 
@@ -245,43 +316,59 @@ Logout
 
 </div>
 
-<script>
+<!-- LOGOUT CONFIRM POPUP -->
 
-/* SIDEBAR TOGGLE */
+<div id="logoutConfirmBox" class="confirm-overlay">
+
+<div class="confirm-box">
+
+<h3>Confirm Logout</h3>
+
+<p>Are you sure you want to logout?</p>
+
+<div class="confirm-buttons">
+
+<button class="cancelBtn" onclick="closeLogoutConfirm()">Cancel</button>
+
+<button class="confirmBtn" onclick="logout()">Logout</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
 
 function toggleMenu(){
 document.getElementById("sidebar").classList.toggle("hide")
 }
 
-/* STOCK MENU */
-
 function toggleStockMenu(){
 let menu=document.getElementById("stockMenu")
-menu.style.display = (menu.style.display==="block")?"none":"block"
+menu.style.display=(menu.style.display==="block")?"none":"block"
 }
-
-/* DOWNLOAD MENU */
 
 function toggleDownloadMenu(){
 let menu=document.getElementById("downloadMenu")
-menu.style.display = (menu.style.display==="block")?"none":"block"
+menu.style.display=(menu.style.display==="block")?"none":"block"
 }
-
-/* OPEN PAGE */
 
 function openPage(page){
 window.location=page
 }
 
-/* LOGOUT */
+function openLogoutConfirm(){
+document.getElementById("logoutConfirmBox").style.display="flex"
+}
+
+function closeLogoutConfirm(){
+document.getElementById("logoutConfirmBox").style.display="none"
+}
 
 function logout(){
-if(confirm("Logout ?")){
-window.location="index.html"
+window.location="login.html"
 }
-}
-
-/* DOWNLOAD STOCK */
 
 function downloadStock(stock){
 

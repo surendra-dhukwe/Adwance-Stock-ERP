@@ -208,6 +208,29 @@ transform:translateY(0);
 }
 
 }
+/* ================= MESSAGE BOX ================= */
+
+#msgBox{
+
+margin-top:12px;
+
+padding:10px;
+
+border-radius:6px;
+
+font-size:14px;
+
+display:none;
+
+}
+
+.msg-error{
+background:#dc2626;
+}
+
+.msg-success{
+background:#16a34a;
+}
 
 </style>
 
@@ -244,6 +267,7 @@ transform:translateY(0);
 Login
 </button>
 
+<div id="msgBox"></div>
 </div>
 
 
@@ -287,13 +311,32 @@ const username=document.getElementById("username").value;
 const password=document.getElementById("password").value;
 
 const captchaInput=document.getElementById("captchaInput").value;
+// MASSAGE BOX FUNCTION
+function showMessage(msg,type){
 
+const box=document.getElementById("msgBox");
+
+box.innerText=msg;
+
+box.className="";
+
+box.style.display="block";
+
+if(type==="error"){
+box.classList.add("msg-error");
+}
+
+if(type==="success"){
+box.classList.add("msg-success");
+}
+
+}
 
 /* CAPTCHA CHECK */
 
 if(captchaInput !== captcha){
 
-alert("Captcha Incorrect");
+showMessage("Captcha Incorrect","error");
 
 generateCaptcha();
 
@@ -306,7 +349,7 @@ return;
 
 if(username==="Admin" && password==="Admin@123"){
 
-alert("Login Successful");
+showMessage("Login Successful","success");
 
 window.location="dashboard.html";
 
@@ -314,7 +357,7 @@ window.location="dashboard.html";
 
 else{
 
-alert("Invalid Username or Password");
+showMessage("Invalid Username or Password","error");
 
 }
 
