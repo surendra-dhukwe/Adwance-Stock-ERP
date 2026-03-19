@@ -2,83 +2,62 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+/* ================= FUNCTION TO DOWNLOAD FINAL STOCK ================= */
+async function downloadStock(stockTable, stockName, res) {
+    try {
+        const sql = `
+        SELECT 
+            code,
+            name,
+            SUM(
+                CASE
+                    WHEN type='receive' THEN total_quantity
+                    WHEN type='dispatch' THEN -total_quantity
+                    ELSE 0
+                END
+            ) AS total_quantity
+        FROM ${stockTable}
+        GROUP BY code, name
+        ORDER BY name
+        `;
 
-/* ================= STOCK 1 FINAL STOCK DOWNLOAD ================= */
+        const [results] = await db.query(sql);
 
-router.get('/stock1/download', (req,res)=>{
+        let csvContent = "Code,Name,Final Stock\n";
 
-const sql = `
-SELECT 
-code,
-MAX(name) AS name,
-SUM(
-CASE
-WHEN type='receive' THEN total_quantity
-WHEN type='dispatch' THEN -total_quantity
-ELSE 0
-END
-) AS total_quantity
-FROM transactions_stock1
-GROUP BY code
-ORDER BY code
-`;
+        results.forEach(row => {
+            csvContent += `${row.code || ""},${row.name},${row.total_quantity || 0}\n`;
+        });
 
-db.query(sql,(err,results)=>{
+        res.setHeader(
+            'Content-disposition',
+            `attachment; filename=${stockName.toLowerCase()}_final_stock.csv`
+        );
+        res.setHeader('Content-Type', 'text/csv');
 
-if(err) return res.status(500).send(err);
+        res.status(200).send(csvContent);
 
-let csvContent = "Code,Name,Final Stock\n";
+    } catch (err) {
+        console.log("🔥 Final Stock Download Error:", err);
+        res.status(500).json({ message: "Download Error" });
+    }
+}
 
-results.forEach(row=>{
-csvContent += `${row.code},${row.name},${row.total_quantity}\n`;
+/* ================= STOCK FINAL DOWNLOAD ROUTES ================= */
+router.get('/stock1/download', (req, res) => {
+    downloadStock('transactions_stock1', 'Stock1', res);
 });
 
-res.setHeader('Content-disposition','attachment; filename=stock1_final_stock.csv');
-res.set('Content-Type','text/csv');
-res.status(200).send(csvContent);
-
+router.get('/stock2/download', (req, res) => {
+    downloadStock('transactions_stock2', 'Stock2', res);
 });
 
+router.get('/stock3/download', (req, res) => {
+    downloadStock('transactions_stock3', 'Stock3', res);
 });
 
-
-/* ================= STOCK 2 FINAL STOCK DOWNLOAD ================= */
-
-router.get('/stock2/download', (req,res)=>{
-
-const sql = `
-SELECT 
-code,
-MAX(name) AS name,
-SUM(
-CASE
-WHEN type='receive' THEN total_quantity
-WHEN type='dispatch' THEN -total_quantity
-ELSE 0
-END
-) AS total_quantity
-FROM transactions_stock2
-GROUP BY code
-ORDER BY code
-`;
-
-db.query(sql,(err,results)=>{
-
-if(err) return res.status(500).send(err);
-
-let csvContent = "Code,Name,Final Stock\n";
-
-results.forEach(row=>{
-csvContent += `${row.code},${row.name},${row.total_quantity}\n`;
+router.get('/stock4/download', (req, res) => {
+    downloadStock('transactions_stock4', 'Stock4', res);
 });
-
-res.setHeader('Content-disposition','attachment; filename=stock2_final_stock.csv');
-res.set('Content-Type','text/csv');
-res.status(200).send(csvContent);
-
-});
-
-});
-
 
 module.exports = router;

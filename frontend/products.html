@@ -1,239 +1,319 @@
 <!DOCTYPE html>
 <html>
-
 <head>
+<title>Products Manager</title>
 
-<title id="productsPageTitle">Products List</title>
+<style>
+body{
+    font-family:Segoe UI;
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    padding:20px;
+}
 
-<link rel="stylesheet" href="css/style.css">
+/* HEADING */
+h2{
+    text-align:center;
+    margin-bottom:20px;
+    letter-spacing:1px;
+}
+
+/* BOX */
+.box{
+    background:rgba(30,41,59,0.9);
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:20px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* MENU */
+.menu{
+    text-align:center;
+    position:relative;
+}
+
+.menu button{
+    background:#2563eb;
+    padding:10px 18px;
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.menu button:hover{
+    background:#1e40af;
+    transform:scale(1.05);
+}
+
+/* DROPDOWN */
+.menu-options{
+    display:none;
+    margin-top:12px;
+    animation:fadeIn 0.3s ease;
+}
+
+.menu-options button{
+    margin:5px;
+    padding:6px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    color:white;
+}
+
+.add{background:#22c55e;}
+.update{background:#f59e0b;}
+.delete{background:#ef4444;}
+
+.menu-options button:hover{
+    opacity:0.8;
+}
+
+/* FORM */
+.formBox{
+    display:none;
+    margin-top:10px;
+    animation:fadeIn 0.3s ease;
+}
+
+/* INPUT */
+input{
+    padding:8px 10px;
+    margin:5px;
+    border:none;
+    border-radius:6px;
+    outline:none;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    padding:10px;
+}
+th{
+    background:#334155;
+}
+tr:nth-child(even){
+    background:#1e293b;
+}
+tr:hover{
+    background:#334155;
+}
+
+/* SEARCH */
+.searchBox{
+    text-align:center;
+}
+.searchBox input{
+    width:300px;
+}
+
+/* ANIMATION */
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+}
+</style>
 
 </head>
 
-<body id="productsPage" class="products-page">
+<body>
 
-<h2 id="productsHeading" class="page-heading">Products List</h2>
+<h2>Products Manager</h2>
 
+<!-- MENU -->
+<div class="box menu">
+<button onclick="toggleMenu()">⚙ Manage Products</button>
 
-<!-- STOCK SELECT -->
+<div id="menuOptions" class="menu-options">
 
-<div class="stockSelect" id="stockSelectBox">
+    <button class="add" onclick="showForm('addForm')">Add</button>
+    <button class="update" onclick="showForm('updateForm')">Update</button>
+    <button class="delete" onclick="showForm('deleteForm')">Delete</button>
 
-<label id="stockLabel">Select Stock :</label>
+    <!-- ADD -->
+    <div id="addForm" class="formBox">
+        <input id="add_code" placeholder="CPP Code">
+        <input id="add_name" placeholder="Name">
+        <input id="add_loose" placeholder="Loose Code">
+        <button class="add" onclick="addProduct()">Add Product</button>
+    </div>
 
-<select id="stockSelect" class="stock-dropdown" onchange="loadProducts()">
+    <!-- UPDATE -->
+    <div id="updateForm" class="formBox">
+        <input id="up_code" placeholder="CPP Code">
+        <input id="up_name" placeholder="New Name">
+        <input id="up_loose" placeholder="New Loose Code">
+        <button class="update" onclick="updateProduct()">Update Product</button>
+    </div>
 
-<option value="stock1" class="stock-option">Stock 1</option>
-
-<option value="stock2" class="stock-option">Stock 2</option>
-
-</select>
+    <!-- DELETE -->
+    <div id="deleteForm" class="formBox">
+        <input id="del_code" placeholder="CPP Code">
+        <button class="delete" onclick="deleteProduct()">Delete Product</button>
+    </div>
 
 </div>
-
-
-
-<!-- ADD ITEM -->
-
-<div class="addBox" id="addProductBox">
-
-<h3 id="addItemHeading" class="section-title">Add Item</h3>
-
-<input id="code" class="input-code" placeholder="Code">
-
-<input id="name" class="input-name" placeholder="Name">
-
-<button id="addItemBtn" class="addItemBtn add-product-btn" onclick="addProduct()">
-Add Item
-</button>
-
 </div>
-
-
 
 <!-- SEARCH -->
-
-<div class="searchBox" id="searchBox">
-
-<input
-id="search"
-class="search-input"
-placeholder="Search Code or Name"
-onkeyup="searchProduct()"
->
-
+<div class="box searchBox">
+<h3>Search Product</h3>
+<input id="searchInput" placeholder="Search Code / Name / Loose Code" onkeyup="filterProducts()">
 </div>
 
-
-
 <!-- TABLE -->
-
-<table id="table" class="products-table">
-
-<thead id="productsTableHead">
-
-<tr class="table-header-row">
-
-<th id="thCode" class="table-header">Code</th>
-
-<th id="thName" class="table-header">Name</th>
-
-<th id="thStock" class="table-header">Stock</th>
-
+<div class="box">
+<h3>All Products</h3>
+<table>
+<thead>
+<tr>
+<th>CPP Code</th>
+<th>Name</th>
+<th>Loose Code</th>
 </tr>
-
 </thead>
-
-<tbody id="productsTableBody">
-
-</tbody>
-
+<tbody id="table"></tbody>
 </table>
+</div>
 
-
-
-<script id="productsScript">
-
+<script>
 
 let allProducts=[];
 
+/* MENU TOGGLE */
+function toggleMenu(){
+    const menu=document.getElementById("menuOptions");
 
+    if(menu.style.display==="block"){
+        menu.style.display="none";
+        hideAllForms(); // 🔥 important fix
+    } else {
+        menu.style.display="block";
+    }
+}
 
-/* ================= LOAD PRODUCTS ================= */
+/* SHOW FORM */
+function showForm(id){
+    hideAllForms();
+    document.getElementById(id).style.display="block";
+}
 
+/* HIDE ALL FORMS */
+function hideAllForms(){
+    document.querySelectorAll(".formBox").forEach(f=>f.style.display="none");
+}
+
+/* CLICK OUTSIDE CLOSE */
+document.addEventListener("click", function(e){
+    const menu=document.getElementById("menuOptions");
+    const button=document.querySelector(".menu button");
+
+    if(!menu.contains(e.target) && !button.contains(e.target)){
+        menu.style.display="none";
+        hideAllForms(); // 🔥 fix
+    }
+});
+
+/* LOAD */
 function loadProducts(){
-
-const stock=document.getElementById("stockSelect").value;
-
-fetch(`http://localhost:3000/products-stock/${stock}`)
-
-.then(res=>res.json())
-
-.then(data=>{
-
-allProducts=data;
-
-showTable(data);
-
-})
-
-.catch(err=>{
-
-alert("Server Not Running");
-
-});
-
+    fetch("http://localhost:3000/products")
+    .then(res=>res.json())
+    .then(data=>{
+        allProducts=data;
+        showTable(data);
+    });
 }
 
-
-
-/* ================= SHOW TABLE ================= */
-
+/* SHOW TABLE */
 function showTable(data){
+    const table=document.getElementById("table");
+    table.innerHTML="";
 
-const table=document.querySelector("#table tbody");
+    if(data.length===0){
+        table.innerHTML=`<tr><td colspan="3">No Data</td></tr>`;
+        return;
+    }
 
-table.innerHTML="";
-
-
-data.forEach(p=>{
-
-const row=table.insertRow();
-
-row.className="product-row";
-
-row.innerHTML=`
-
-<td class="product-code">${p.code}</td>
-
-<td class="product-name">${p.name}</td>
-
-<td class="product-stock ${p.stock>=0?'stockGreen':'stockRed'}">
-
-${p.stock}
-
-</td>
-
-`;
-
-});
-
+    data.forEach(p=>{
+        table.innerHTML+=`
+        <tr>
+            <td>${p.code || ""}</td>
+            <td>${p.name}</td>
+            <td>${p.loose_code || ""}</td>
+        </tr>`;
+    });
 }
 
+/* SEARCH */
+function filterProducts(){
+    const text=document.getElementById("searchInput").value.toLowerCase();
 
+    const filtered=allProducts.filter(p =>
+        (p.code || "").toLowerCase().includes(text) ||
+        (p.name || "").toLowerCase().includes(text) ||
+        (p.loose_code || "").toLowerCase().includes(text)
+    );
 
-/* ================= SEARCH ================= */
-
-function searchProduct(){
-
-const text=document.getElementById("search").value.toLowerCase();
-
-
-const filtered=allProducts.filter(p=>
-
-p.code.toLowerCase().includes(text)
-
-||
-
-p.name.toLowerCase().includes(text)
-
-);
-
-
-showTable(filtered);
-
+    showTable(filtered);
 }
 
-
-
-/* ================= ADD PRODUCT ================= */
-
+/* ADD */
 function addProduct(){
+    const code=document.getElementById("add_code").value.trim();
+    const name=document.getElementById("add_name").value.trim();
+    const loose_code=document.getElementById("add_loose").value.trim();
 
-const code=document.getElementById("code").value;
+    if(!name){ alert("Name required"); return; }
 
-const name=document.getElementById("name").value;
-
-
-fetch("http://localhost:3000/products",{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json"
-
-},
-
-body:JSON.stringify({
-
-code:code,
-name:name
-
-})
-
-})
-
-.then(res=>res.json())
-
-.then(()=>{
-
-alert("Product Added");
-
-loadProducts();
-
-});
-
+    fetch("http://localhost:3000/products",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({code,name,loose_code})
+    })
+    .then(()=>{ alert("Added"); loadProducts(); });
 }
 
+/* UPDATE */
+function updateProduct(){
+    const cpp_code=document.getElementById("up_code").value.trim();
+    const name=document.getElementById("up_name").value.trim();
+    const loose_code=document.getElementById("up_loose").value.trim();
 
+    if(!cpp_code){ alert("Enter Code"); return; }
 
-/* ================= PAGE LOAD ================= */
+    fetch("http://localhost:3000/products",{
+        method:"PUT",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({cpp_code,name,loose_code})
+    })
+    .then(()=>{ alert("Updated"); loadProducts(); });
+}
 
+/* DELETE */
+function deleteProduct(){
+    const cpp_code=document.getElementById("del_code").value.trim();
+
+    if(!cpp_code){ alert("Enter Code"); return; }
+    if(!confirm("Delete?")) return;
+
+    fetch(`http://localhost:3000/products/${cpp_code}`,{
+        method:"DELETE"
+    })
+    .then(()=>{ alert("Deleted"); loadProducts(); });
+}
+
+/* INIT */
 loadProducts();
-
 
 </script>
 
 </body>
-
 </html>

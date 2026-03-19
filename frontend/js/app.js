@@ -1,274 +1,204 @@
 /* ================= GLOBAL PRODUCTS ================= */
+let products = [];
 
-let products = []
+/* ================= BASE URL ================= */
+const BASE_URL = "http://localhost:3000";
 
 /* ================= DETECT STOCK ================= */
+let stockType = "stock1";
+const pathName = window.location.pathname.toLowerCase();
 
-let stockType = "stock1"
-
-if (window.location.pathname.toLowerCase().includes("stock2")) {
-stockType = "stock2"
-}
+if (pathName.includes("stock2")) stockType = "stock2";
+else if (pathName.includes("stock3")) stockType = "stock3";
+else if (pathName.includes("stock4")) stockType = "stock4";
 
 /* ================= DETECT TYPE ================= */
-
-let type = "receive"
-
-if (window.location.pathname.toLowerCase().includes("dispatch")) {
-type = "dispatch"
-}
+let type = pathName.includes("dispatch") ? "dispatch" : "receive";
 
 /* ================= DATE AUTO ================= */
-
 window.addEventListener("DOMContentLoaded", () => {
-
-const dateInput = document.getElementById("receiveDate")
-
-if(dateInput){
-
-const today = new Date()
-
-const yyyy = today.getFullYear()
-const mm = String(today.getMonth()+1).padStart(2,"0")
-const dd = String(today.getDate()).padStart(2,"0")
-
-dateInput.value = `${yyyy}-${mm}-${dd}`
-
-}
-
-})
+    const dateInput = document.getElementById("receiveDate");
+    if (dateInput) {
+        const today = new Date();
+        dateInput.value = today.toISOString().split("T")[0];
+    }
+});
 
 /* ================= LOAD PRODUCTS ================= */
+async function loadProducts() {
+    try {
+        const res = await fetch(`${BASE_URL}/products`);
 
-fetch("/products")
+        if (!res.ok) throw new Error("API error");
 
-.then(res => res.json())
+        const data = await res.json();
+        products = data || [];
 
-.then(data => {
+        const list = document.getElementById("codeList");
 
-products = data
+        if (list) {
+            list.innerHTML = "";
 
-const list = document.getElementById("codeList")
+            products.forEach(p => {
+                const option = document.createElement("option");
+                option.value = p.code ?? "";
+                option.label = p.name ?? "";
+                list.appendChild(option);
+            });
+        }
 
-if(list){
+        const tbody = document.querySelector("#itemTable tbody");
+        if (tbody && tbody.children.length === 0) {
+            addRow();
+        }
 
-products.forEach(p => {
-
-const option = document.createElement("option")
-
-option.value = p.code
-option.label = p.name
-
-list.appendChild(option)
-
-})
-
+    } catch (err) {
+        console.log("Product Load Error:", err);
+        alert("❌ Backend not connected (check server & API)");
+    }
 }
-
-if(document.querySelector("#itemTable tbody") &&
-document.querySelector("#itemTable tbody").children.length === 0){
-
-addRow()
-
-}
-
-})
-
-.catch(err=>{
-
-console.log("Product Load Error",err)
-
-})
 
 /* ================= ADD ROW ================= */
+function addRow() {
+    const table = document.querySelector("#itemTable tbody");
+    if (!table) return;
 
-function addRow(){
+    const row = table.insertRow();
 
-const table = document.querySelector("#itemTable tbody")
+    row.innerHTML = `
+        <td><input class="code" list="codeList"></td>
+        <td><input class="name" readonly></td>
+        <td><input class="loose" placeholder="Loose Code"></td>
+        <td><input type="number" class="bags"></td>
+        <td><input type="number" class="qty"></td>
+        <td><input class="total" readonly></td>
+    `;
 
-if(!table) return
+    const codeInput = row.querySelector(".code");
 
-const row = table.insertRow()
+    codeInput.addEventListener("input", function () {
+        const val = this.value?.trim();
 
-row.innerHTML = `
+        const product = products.find(p => (p.code ?? "") == val);
 
-<td><input class="code" list="codeList"></td>
-<td><input class="name" readonly></td>
-<td><input type="number" class="bags"></td>
-<td><input type="number" class="qty"></td>
-<td><input class="total" readonly></td>
+        if (product) {
+            row.querySelector(".name").value = product.name || "";
+            if (!row.querySelector(".loose").value) {
+                row.querySelector(".loose").value = product.loose_code || "";
+            }
+        } else {
+            row.querySelector(".name").value = "";
+        }
+    });
 
-`
+    row.querySelectorAll(".bags,.qty").forEach(input => {
+        input.addEventListener("input", calculateRow);
+    });
 
-const codeInput = row.querySelector(".code")
-
-codeInput.addEventListener("input",function(){
-
-let code = this.value
-
-let product = products.find(p => p.code == code)
-
-if(product){
-row.querySelector(".name").value = product.name
-}else{
-row.querySelector(".name").value = ""
-}
-
-})
-
-row.querySelectorAll(".bags,.qty").forEach(input=>{
-input.addEventListener("input",calculateRow)
-})
-
-row.querySelectorAll("input").forEach(input=>{
-
-input.addEventListener("keydown",function(e){
-
-if(e.key === "Enter"){
-
-e.preventDefault()
-
-addRow()
-
-}
-
-})
-
-})
-
-codeInput.focus()
-
+    codeInput.focus();
 }
 
 /* ================= CALCULATE ================= */
+function calculateRow(e) {
+    const row = e.target.closest("tr");
 
-function calculateRow(e){
+    const bags = parseFloat(row.querySelector(".bags").value) || 0;
+    const qty = parseFloat(row.querySelector(".qty").value) || 0;
 
-const row = e.target.closest("tr")
+    row.querySelector(".total").value = bags * qty;
 
-const bags = parseFloat(row.querySelector(".bags").value) || 0
-const qty = parseFloat(row.querySelector(".qty").value) || 0
-
-const total = bags * qty
-
-row.querySelector(".total").value = total
-
-updateTotals()
-
+    updateTotals();
 }
 
 /* ================= TOTAL ================= */
+function updateTotals() {
+    let totalBags = 0;
+    let totalQty = 0;
 
-function updateTotals(){
+    document.querySelectorAll("#itemTable tbody tr").forEach(row => {
+        totalBags += parseFloat(row.querySelector(".bags").value) || 0;
+        totalQty += parseFloat(row.querySelector(".total").value) || 0;
+    });
 
-let totalBags = 0
-let totalQty = 0
+    const tb = document.getElementById("totalBags");
+    const tq = document.getElementById("grandTotalQty");
 
-document.querySelectorAll("#itemTable tbody tr").forEach(row=>{
-
-const bags = parseFloat(row.querySelector(".bags").value) || 0
-const total = parseFloat(row.querySelector(".total").value) || 0
-
-totalBags += bags
-totalQty += total
-
-})
-
-if(document.getElementById("totalBags")){
-document.getElementById("totalBags").innerText = totalBags
-}
-
-if(document.getElementById("grandTotalQty")){
-document.getElementById("grandTotalQty").innerText = totalQty
-}
-
+    if (tb) tb.innerText = totalBags;
+    if (tq) tq.innerText = totalQty;
 }
 
 /* ================= SAVE ================= */
+async function saveTransaction() {
+    try {
+        const rows = document.querySelectorAll("#itemTable tbody tr");
 
-function saveTransaction(){
+        let items = [];
 
-const rows = document.querySelectorAll("#itemTable tbody tr")
+        rows.forEach(row => {
+            const code = row.querySelector(".code")?.value.trim();
+            const name = row.querySelector(".name")?.value.trim();
+            const loose_code = row.querySelector(".loose")?.value.trim();
 
-let items = []
+            const bags = parseFloat(row.querySelector(".bags")?.value) || 0;
+            const qty = parseFloat(row.querySelector(".qty")?.value) || 0;
 
-rows.forEach(row=>{
+            if (name || code) {
+                items.push({
+                    code: code || null,
+                    name,
+                    loose_code,
+                    bags,
+                    qty,
+                    totalQty: bags * qty
+                });
+            }
+        });
 
-const code = row.querySelector(".code").value
-const name = row.querySelector(".name").value
-const totalQty = row.querySelector(".total").value
+        if (items.length === 0) {
+            alert("No items entered");
+            return;
+        }
 
-if(code){
-items.push({code,name,totalQty})
-}
+        const res = await fetch(`${BASE_URL}/transactions/${stockType}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type, items })
+        });
 
-})
+        if (!res.ok) throw new Error("Save failed");
 
-if(items.length === 0){
-alert("No items entered")
-return
-}
+        await res.json();
 
-let entryDate = document.getElementById("receiveDate").value
+        alert("✅ Saved Successfully");
 
-fetch(`/transactions/${stockType}`,{
+        document.querySelector("#itemTable tbody").innerHTML = "";
+        addRow();
 
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-type:type,
-date:entryDate,
-items:items
-
-})
-
-})
-
-.then(res=>res.json())
-
-.then(data=>{
-
-alert("Saved Successfully")
-
-location.reload()
-
-})
-
-.catch(err=>{
-
-console.log(err)
-
-alert("Server Error")
-
-})
-
+    } catch (err) {
+        console.log("SAVE ERROR:", err);
+        alert("❌ Save failed (check backend & API)");
+    }
 }
 
 /* ================= DOWNLOAD ================= */
+async function downloadExcel() {
+    try {
+        const res = await fetch(`${BASE_URL}/final-stock/${stockType}/download`);
 
-function downloadExcel(){
+        if (!res.ok) throw new Error();
 
-fetch(`/final-stock/${stockType}/download`)
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
 
-.then(res=>res.blob())
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${stockType}_final_stock.csv`;
+        a.click();
 
-.then(blob=>{
-
-const url = URL.createObjectURL(blob)
-
-const a = document.createElement("a")
-
-a.href = url
-
-a.download = `${stockType}_final_stock.csv`
-
-a.click()
-
-})
-
+    } catch (err) {
+        alert("❌ Download failed");
+    }
 }
+
+/* ================= INIT ================= */
+loadProducts();

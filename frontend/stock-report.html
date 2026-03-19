@@ -2,240 +2,133 @@
 <html>
 
 <head>
-
 <title id="reportPageTitle">Stock Transactions Report</title>
-
 <link rel="stylesheet" href="css/style.css">
-
 </head>
 
 <body id="reportPage" class="report-page">
 
 <h2 id="reportHeading" class="page-heading">Stock Transactions Report</h2>
 
-
 <!-- STOCK SELECT -->
-
 <div class="stockSelect" id="reportStockSelectBox">
-
 <label id="reportStockLabel">Select Stock :</label>
-
 <select id="stockSelect" class="stock-dropdown report-stock-dropdown" onchange="loadTransactions()">
-
-<option value="stock1" class="stock-option">Stock 1</option>
-
-<option value="stock2" class="stock-option">Stock 2</option>
-
+    <option value="stock1" class="stock-option">Stock 1</option>
+    <option value="stock2" class="stock-option">Stock 2</option>
+    <option value="stock3" class="stock-option">Stock 3</option>
+    <option value="stock4" class="stock-option">Stock 4</option>
 </select>
-
 </div>
 
-
-
 <!-- SEARCH -->
-
 <div class="searchBox" id="reportSearchBox">
-
 <input
 type="text"
 id="searchInput"
 class="report-search-input"
 placeholder="Search Code, Name, Type or Date"
 onkeyup="filterTable()">
-
 </div>
 
-
-
 <!-- TABLE -->
-
 <table id="reportTable" class="transactions-table">
-
 <thead id="reportTableHead">
-
 <tr class="report-header-row">
-
 <th id="thReportCode" class="report-th" onclick="sortTable(0)">Code</th>
-
 <th id="thReportName" class="report-th" onclick="sortTable(1)">Name</th>
-
 <th id="thReportQty" class="report-th" onclick="sortTable(2)">Quantity</th>
-
 <th id="thReportType" class="report-th" onclick="sortTable(3)">Type</th>
-
 <th id="thReportDate" class="report-th" onclick="sortTable(4)">Date</th>
-
 </tr>
-
 </thead>
-
 <tbody id="reportTableBody" class="report-tbody">
-
 </tbody>
-
 </table>
-
-
 
 <script id="reportScript">
 
 let allData=[];
 
-
 /* ================= LOAD TRANSACTIONS ================= */
-
 function loadTransactions(){
-
-const stock=document.getElementById("stockSelect").value;
-
-fetch(`http://localhost:3000/all-transactions/${stock}`)
-
-.then(res=>{
-
-if(!res.ok){
-
-throw new Error("Server Error");
-
+    const stock=document.getElementById("stockSelect").value;
+    fetch(`http://localhost:3000/all-transactions/${stock}`)
+    .then(res=>{
+        if(!res.ok){
+            throw new Error("Server Error");
+        }
+        return res.json();
+    })
+    .then(data=>{
+        allData=data;
+        showTable(data);
+    })
+    .catch(err=>{
+        console.log(err);
+        alert("Server Not Running or API Error");
+    });
 }
-
-return res.json();
-
-})
-
-.then(data=>{
-
-allData=data;
-
-showTable(data);
-
-})
-
-.catch(err=>{
-
-console.log(err);
-
-alert("Server Not Running or API Error");
-
-});
-
-}
-
-
 
 /* ================= SHOW TABLE ================= */
-
 function showTable(data){
+    const table=document.querySelector("#reportTable tbody");
+    table.innerHTML="";
 
-const table=document.querySelector("#reportTable tbody");
+    if(data.length===0){
+        table.innerHTML=`<tr class="no-data-row">
+            <td colspan="5" class="no-data-cell">No Transactions Found</td>
+        </tr>`;
+        return;
+    }
 
-table.innerHTML="";
-
-
-if(data.length===0){
-
-table.innerHTML=`<tr class="no-data-row">
-
-<td colspan="5" class="no-data-cell">No Transactions Found</td>
-
-</tr>`;
-
-return;
-
+    data.forEach(item=>{
+        const row=table.insertRow();
+        row.className="report-row";
+        row.innerHTML=`
+            <td class="report-code">${item.code}</td>
+            <td class="report-name">${item.name}</td>
+            <td class="report-qty">${item.total_quantity}</td>
+            <td class="report-type ${item.type=='dispatch'?'dispatch':'receive'}">
+                ${item.type}
+            </td>
+            <td class="report-date">
+                ${new Date(item.entry_date).toLocaleString()}
+            </td>
+        `;
+    });
 }
-
-
-data.forEach(item=>{
-
-const row=table.insertRow();
-
-row.className="report-row";
-
-row.innerHTML=`
-
-<td class="report-code">${item.code}</td>
-
-<td class="report-name">${item.name}</td>
-
-<td class="report-qty">${item.total_quantity}</td>
-
-<td class="report-type ${item.type=='dispatch'?'dispatch':'receive'}">
-
-${item.type}
-
-</td>
-
-<td class="report-date">
-
-${new Date(item.entry_date).toLocaleString()}
-
-</td>
-
-`;
-
-});
-
-}
-
-
 
 /* ================= SEARCH ================= */
-
 function filterTable(){
-
-const text=document.getElementById("searchInput").value.toLowerCase();
-
-const filtered=allData.filter(item =>
-
-item.code.toLowerCase().includes(text) ||
-
-item.name.toLowerCase().includes(text) ||
-
-item.type.toLowerCase().includes(text) ||
-
-item.total_quantity.toString().includes(text) ||
-
-new Date(item.entry_date).toLocaleString().toLowerCase().includes(text)
-
-);
-
-showTable(filtered);
-
+    const text=document.getElementById("searchInput").value.toLowerCase();
+    const filtered=allData.filter(item =>
+        item.code.toLowerCase().includes(text) ||
+        item.name.toLowerCase().includes(text) ||
+        item.type.toLowerCase().includes(text) ||
+        item.total_quantity.toString().includes(text) ||
+        new Date(item.entry_date).toLocaleString().toLowerCase().includes(text)
+    );
+    showTable(filtered);
 }
-
-
 
 /* ================= SORT ================= */
-
 function sortTable(n){
-
-const rows=Array.from(document.querySelectorAll("#reportTable tbody tr"));
-
-rows.sort((a,b)=>{
-
-let x=a.cells[n].innerText;
-
-let y=b.cells[n].innerText;
-
-return x.localeCompare(y,undefined,{numeric:true});
-
-});
-
-const tbody=document.querySelector("#reportTable tbody");
-
-tbody.innerHTML="";
-
-rows.forEach(r=>tbody.appendChild(r));
-
+    const rows=Array.from(document.querySelectorAll("#reportTable tbody tr"));
+    rows.sort((a,b)=>{
+        let x=a.cells[n].innerText;
+        let y=b.cells[n].innerText;
+        return x.localeCompare(y,undefined,{numeric:true});
+    });
+    const tbody=document.querySelector("#reportTable tbody");
+    tbody.innerHTML="";
+    rows.forEach(r=>tbody.appendChild(r));
 }
 
-
-
 /* ================= PAGE LOAD ================= */
-
 window.onload=loadTransactions;
 
 </script>
 
 </body>
-
 </html>

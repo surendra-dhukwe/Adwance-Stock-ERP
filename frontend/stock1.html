@@ -1,16 +1,10 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-<title id="stock1PageTitle">Stock 1</title>
-
-<link rel="stylesheet" href="css/style.css">
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <title id="stock1PageTitle">Stock 1</title>
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-
 <body id="stock1Page" class="stock-page stock1-page">
 
 <div class="page stock-container" id="stock1Container">
@@ -18,15 +12,12 @@
 <h2 id="stock1Heading" class="stock-heading">📦 Stock 1</h2>
 
 <div class="options stock-options" id="stock1Options">
-
 <button class="dispatchBtn dispatch-btn stock-dispatch-btn" id="stock1DispatchBtn" onclick="openDispatch()">
 🚚 Dispatch
 </button>
-
 <button class="receiveBtn receive-btn stock-receive-btn" id="stock1ReceiveBtn" onclick="openReceive()">
 📥 Receiving
 </button>
-
 </div>
 
 <br>
@@ -38,44 +29,22 @@
 </div>
 
 <script id="stock1Script">
-
-/* ================= SET STOCK ================= */
-
 localStorage.setItem("stock","stock1");
 
-
-/* ================= OPEN DISPATCH ================= */
-
 function openDispatch(){
-
-localStorage.setItem("type","dispatch");
-
-window.location.href="stock1-dispatch.html";
-
+    localStorage.setItem("type","dispatch");
+    window.location.href="stock1-dispatch.html";
 }
-
-
-/* ================= OPEN RECEIVE ================= */
 
 function openReceive(){
-
-localStorage.setItem("type","receive");
-
-window.location.href="stock1-receive.html";
-
+    localStorage.setItem("type","receive");
+    window.location.href="stock1-receive.html";
 }
-
-
-/* ================= BACK ================= */
 
 function goHome(){
-
-window.location.href="dashboard.html";
-
+    window.location.href="dashboard.html";
 }
-
 </script>
 
 </body>
-
 </html>

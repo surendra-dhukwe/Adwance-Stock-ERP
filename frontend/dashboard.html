@@ -2,15 +2,11 @@
 <html>
 
 <head>
-
 <title>Stock ERP Dashboard</title>
-
 <link rel="stylesheet" href="css/style.css">
 
 <style>
-
 /* BODY */
-
 body{
 margin:0;
 font-family:Segoe UI,Arial;
@@ -19,7 +15,6 @@ color:white;
 }
 
 /* TOP BAR */
-
 .topbar{
 height:55px;
 background:#111827;
@@ -39,13 +34,11 @@ flex:1;
 }
 
 /* LAYOUT */
-
 .container{
 display:flex;
 }
 
 /* SIDEBAR */
-
 .sidebar{
 width:230px;
 background:#111827;
@@ -63,7 +56,6 @@ margin-bottom:25px;
 }
 
 /* SIDEBAR BUTTON */
-
 .sidebar button{
 width:100%;
 padding:10px;
@@ -82,21 +74,18 @@ background:#4b5563;
 }
 
 /* SUB MENU */
-
 .submenu{
 display:none;
 padding-left:12px;
 }
 
 /* MAIN */
-
 .main{
 flex:1;
 padding:25px;
 }
 
 /* CARDS */
-
 .cards{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -127,7 +116,6 @@ background:#1e40af;
 }
 
 /* LOGOUT BUTTON */
-
 .logoutBtn{
 padding:8px 16px;
 background:#dc2626;
@@ -145,7 +133,6 @@ transform:scale(1.05);
 }
 
 /* CONFIRM OVERLAY */
-
 .confirm-overlay{
 position:fixed;
 top:0;
@@ -160,7 +147,6 @@ z-index:999;
 }
 
 /* CONFIRM BOX */
-
 .confirm-box{
 background:#1f2937;
 padding:25px;
@@ -205,7 +191,6 @@ cursor:pointer;
 }
 
 /* ANIMATION */
-
 @keyframes fadePop{
 from{
 opacity:0;
@@ -216,65 +201,48 @@ opacity:1;
 transform:scale(1);
 }
 }
-
 </style>
-
 </head>
 
 <body>
 
 <!-- TOP BAR -->
-
 <div class="topbar">
-
 <span class="menu-btn" onclick="toggleMenu()">☰</span>
-
 <h3>Stock ERP Dashboard</h3>
-
 <button onclick="openLogoutConfirm()" class="logoutBtn">Logout</button>
-
 </div>
 
 <div class="container">
 
 <!-- SIDEBAR -->
-
 <div class="sidebar" id="sidebar">
-
 <h3>Stock ERP</h3>
 
 <button onclick="openPage('dashboard.html')">Dashboard</button>
 
 <button onclick="toggleStockMenu()">Stock ▼</button>
-
 <div id="stockMenu" class="submenu">
-
 <button onclick="openPage('stock1.html')">Stock 1</button>
-
 <button onclick="openPage('stock2.html')">Stock 2</button>
-
+<button onclick="openPage('stock3.html')">Stock 3</button>
+<button onclick="openPage('stock4.html')">Stock 4</button>
 </div>
 
 <button onclick="openPage('products.html')">Products</button>
-
 <button onclick="openPage('stock-report.html')">Stock Report</button>
 
 <button onclick="toggleDownloadMenu()">Download ▼</button>
-
 <div id="downloadMenu" class="submenu">
-
 <button onclick="downloadStock('stock1')">Download Stock 1</button>
-
 <button onclick="downloadStock('stock2')">Download Stock 2</button>
-
+<button onclick="downloadStock('stock3')">Download Stock 3</button>
+<button onclick="downloadStock('stock4')">Download Stock 4</button>
 </div>
-
 </div>
 
 <!-- MAIN -->
-
 <div class="main">
-
 <h2>Dashboard</h2>
 
 <div class="cards">
@@ -289,6 +257,18 @@ transform:scale(1);
 <h3>Stock 2</h3>
 <p>Dispatch / Receive</p>
 <button onclick="openPage('stock2.html')">Open</button>
+</div>
+
+<div class="card">
+<h3>Stock 3</h3>
+<p>Dispatch / Receive</p>
+<button onclick="openPage('stock3.html')">Open</button>
+</div>
+
+<div class="card">
+<h3>Stock 4</h3>
+<p>Dispatch / Receive</p>
+<button onclick="openPage('stock4.html')">Open</button>
 </div>
 
 <div class="card">
@@ -308,86 +288,46 @@ transform:scale(1);
 <p>Download Final Stock</p>
 <button onclick="downloadStock('stock1')">Stock 1</button>
 <button onclick="downloadStock('stock2')">Stock 2</button>
+<button onclick="downloadStock('stock3')">Stock 3</button>
+<button onclick="downloadStock('stock4')">Stock 4</button>
 </div>
 
 </div>
-
 </div>
 
 </div>
 
 <!-- LOGOUT CONFIRM POPUP -->
-
 <div id="logoutConfirmBox" class="confirm-overlay">
-
 <div class="confirm-box">
-
 <h3>Confirm Logout</h3>
-
 <p>Are you sure you want to logout?</p>
-
 <div class="confirm-buttons">
-
 <button class="cancelBtn" onclick="closeLogoutConfirm()">Cancel</button>
-
 <button class="confirmBtn" onclick="logout()">Logout</button>
-
 </div>
-
 </div>
-
 </div>
 
 <script>
-
-function toggleMenu(){
-document.getElementById("sidebar").classList.toggle("hide")
-}
-
-function toggleStockMenu(){
-let menu=document.getElementById("stockMenu")
-menu.style.display=(menu.style.display==="block")?"none":"block"
-}
-
-function toggleDownloadMenu(){
-let menu=document.getElementById("downloadMenu")
-menu.style.display=(menu.style.display==="block")?"none":"block"
-}
-
-function openPage(page){
-window.location=page
-}
-
-function openLogoutConfirm(){
-document.getElementById("logoutConfirmBox").style.display="flex"
-}
-
-function closeLogoutConfirm(){
-document.getElementById("logoutConfirmBox").style.display="none"
-}
-
-function logout(){
-window.location="index.html"
-}
-
+function toggleMenu(){document.getElementById("sidebar").classList.toggle("hide")}
+function toggleStockMenu(){let menu=document.getElementById("stockMenu");menu.style.display=(menu.style.display==="block")?"none":"block"}
+function toggleDownloadMenu(){let menu=document.getElementById("downloadMenu");menu.style.display=(menu.style.display==="block")?"none":"block"}
+function openPage(page){window.location=page}
+function openLogoutConfirm(){document.getElementById("logoutConfirmBox").style.display="flex"}
+function closeLogoutConfirm(){document.getElementById("logoutConfirmBox").style.display="none"}
+function logout(){window.location="index.html"}
 function downloadStock(stock){
-
-fetch(`http://localhost:3000/final-stock/${stock}/download`)
-.then(res=>res.blob())
-.then(blob=>{
-
-const url=URL.createObjectURL(blob)
-
-const a=document.createElement("a")
-
-a.href=url
-a.download=`${stock}_final_stock.csv`
-a.click()
-
-})
-
+    fetch(`http://localhost:3000/final-stock/${stock}/download`)
+    .then(res=>res.blob())
+    .then(blob=>{
+        const url=URL.createObjectURL(blob)
+        const a=document.createElement("a")
+        a.href=url
+        a.download=`${stock}_final_stock.csv`
+        a.click()
+    })
 }
-
 </script>
 
 </body>

@@ -1,148 +1,92 @@
 const express = require('express');
 const router = express.Router();
-
 const db = require('../db');
 
-
 /* ================= GET ALL PRODUCTS ================= */
-
-router.get('/', async (req,res)=>{
-
-try{
-
-const [rows] = await db.query(
-"SELECT code,name FROM products_master ORDER BY code"
-);
-
-res.json(rows);
-
-}
-
-catch(err){
-
-console.log(err);
-res.status(500).send("Database Error");
-
-}
-
+router.get('/', async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            "SELECT code, name, loose_code FROM products_master ORDER BY code ASC"
+        );
+        res.json(rows);
+    } catch (err) {
+        console.log("🔥 Product Fetch Error:", err);
+        res.status(500).json({ message: "Database Error" });
+    }
 });
-
 
 /* ================= ADD PRODUCT ================= */
+router.post('/', async (req, res) => {
+    try {
+        const { code, name, loose_code } = req.body;
 
-router.post('/', async (req,res)=>{
+        if (!name) {
+            return res.status(400).json({ message: "Name is required" });
+        }
 
-try{
+        await db.query(
+            "INSERT INTO products_master(code, name, loose_code) VALUES(?,?,?)",
+            [code || null, name, loose_code || null]
+        );
 
-const {code,name} = req.body;
+        res.json({ message: "Product Added Successfully" });
 
-await db.query(
-"INSERT INTO products_master(code,name) VALUES(?,?)",
-[code,name]
-);
-
-res.json({
-message:"Product Added Successfully"
+    } catch (err) {
+        console.log("🔥 Insert Error:", err);
+        res.status(500).json({ message: err.message });
+    }
 });
 
-}
+/* ================= UPDATE PRODUCT ================= */
+router.put('/', async (req, res) => {
+    try {
+        const { cpp_code, name, loose_code } = req.body;
 
-catch(err){
+        const [existing] = await db.query(
+            "SELECT * FROM products_master WHERE code = ?",
+            [cpp_code]
+        );
 
-console.log(err);
-res.status(500).send("Insert Error");
+        if (existing.length === 0) {
+            return res.status(404).json({ message: "Product Not Found" });
+        }
 
-}
+        const old = existing[0];
 
+        const updatedName = name || old.name;
+        const updatedLoose = loose_code || old.loose_code;
+
+        await db.query(
+            `UPDATE products_master 
+             SET name = ?, loose_code = ? 
+             WHERE code = ?`,
+            [updatedName, updatedLoose, cpp_code]
+        );
+
+        res.json({ message: "Product Updated" });
+
+    } catch (err) {
+        console.log("🔥 Update Error:", err);
+        res.status(500).json({ message: "Error Updating Product" });
+    }
 });
 
+/* ================= DELETE PRODUCT ================= */
+router.delete('/:code', async (req, res) => {
+    try {
+        const code = req.params.code;
 
-/* ================= STOCK1 CURRENT STOCK ================= */
+        await db.query(
+            "DELETE FROM products_master WHERE code = ?",
+            [code]
+        );
 
-router.get('/stock1', async (req,res)=>{
+        res.json({ message: "Deleted" });
 
-try{
-
-const [rows] = await db.query(`
-
-SELECT
-p.code,
-p.name,
-
-COALESCE(SUM(
-CASE
-WHEN t.type='receive' THEN t.total_quantity
-WHEN t.type='dispatch' THEN -t.total_quantity
-ELSE 0
-END
-),0) AS stock
-
-FROM products_master p
-
-LEFT JOIN transactions_stock1 t
-ON p.code = t.code
-
-GROUP BY p.code,p.name
-ORDER BY p.code
-
-`);
-
-res.json(rows);
-
-}
-
-catch(err){
-
-console.log(err);
-res.status(500).send("Database Error");
-
-}
-
+    } catch (err) {
+        console.log("🔥 Delete Error:", err);
+        res.status(500).json({ message: "Error Deleting Product" });
+    }
 });
-
-
-/* ================= STOCK2 CURRENT STOCK ================= */
-
-router.get('/stock2', async (req,res)=>{
-
-try{
-
-const [rows] = await db.query(`
-
-SELECT
-p.code,
-p.name,
-
-COALESCE(SUM(
-CASE
-WHEN t.type='receive' THEN t.total_quantity
-WHEN t.type='dispatch' THEN -t.total_quantity
-ELSE 0
-END
-),0) AS stock
-
-FROM products_master p
-
-LEFT JOIN transactions_stock2 t
-ON p.code = t.code
-
-GROUP BY p.code,p.name
-ORDER BY p.code
-
-`);
-
-res.json(rows);
-
-}
-
-catch(err){
-
-console.log(err);
-res.status(500).send("Database Error");
-
-}
-
-});
-
 
 module.exports = router;
