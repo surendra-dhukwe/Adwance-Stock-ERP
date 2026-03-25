@@ -17,7 +17,7 @@ let type = pathName.includes("dispatch") ? "dispatch" : "receive";
 
 /* ================= DATE AUTO ================= */
 window.addEventListener("DOMContentLoaded", () => {
-    const dateInput = document.getElementById("receiveDate");
+    const dateInput = document.getElementById("transactionDate");
     if (dateInput) {
         const today = new Date();
         dateInput.value = today.toISOString().split("T")[0];
@@ -28,24 +28,45 @@ window.addEventListener("DOMContentLoaded", () => {
 async function loadProducts() {
     try {
         const res = await fetch(`${BASE_URL}/products`);
-
         if (!res.ok) throw new Error("API error");
 
         const data = await res.json();
         products = data || [];
 
-        const list = document.getElementById("codeList");
+        const codeList = document.getElementById("codeList");
+        const nameList = document.getElementById("nameList");
+        const looseList = document.getElementById("looseList");
 
-        if (list) {
-            list.innerHTML = "";
+        if (codeList) codeList.innerHTML = "";
+        if (nameList) nameList.innerHTML = "";
+        if (looseList) looseList.innerHTML = "";
 
-            products.forEach(p => {
-                const option = document.createElement("option");
-                option.value = p.code ?? "";
-                option.label = p.name ?? "";
-                list.appendChild(option);
-            });
-        }
+        products.forEach(p => {
+
+            // CODE LIST
+            if (codeList) {
+                const c = document.createElement("option");
+                c.value = p.code ?? "";
+                c.label = p.name ?? "";
+                codeList.appendChild(c);
+            }
+
+            // NAME LIST
+            if (nameList) {
+                const n = document.createElement("option");
+                n.value = p.name ?? "";
+                n.label = p.code ?? "";
+                nameList.appendChild(n);
+            }
+
+            // LOOSE LIST
+            if (looseList && p.loose_code) {
+                const l = document.createElement("option");
+                l.value = p.loose_code ?? "";
+                l.label = p.name ?? "";
+                looseList.appendChild(l);
+            }
+        });
 
         const tbody = document.querySelector("#itemTable tbody");
         if (tbody && tbody.children.length === 0) {
@@ -54,7 +75,7 @@ async function loadProducts() {
 
     } catch (err) {
         console.log("Product Load Error:", err);
-        alert("❌ Backend not connected (check server & API)");
+        alert("❌ Backend not connected");
     }
 }
 
@@ -67,30 +88,55 @@ function addRow() {
 
     row.innerHTML = `
         <td><input class="code" list="codeList"></td>
-        <td><input class="name" readonly></td>
-        <td><input class="loose" placeholder="Loose Code"></td>
+        <td><input class="name" list="nameList"></td>
+        <td><input class="loose" list="looseList" placeholder="Loose Code"></td>
         <td><input type="number" class="bags"></td>
         <td><input type="number" class="qty"></td>
         <td><input class="total" readonly></td>
     `;
 
     const codeInput = row.querySelector(".code");
+    const nameInput = row.querySelector(".name");
+    const looseInput = row.querySelector(".loose");
 
+    /* ===== CODE → ALL ===== */
     codeInput.addEventListener("input", function () {
         const val = this.value?.trim();
-
         const product = products.find(p => (p.code ?? "") == val);
 
         if (product) {
-            row.querySelector(".name").value = product.name || "";
-            if (!row.querySelector(".loose").value) {
-                row.querySelector(".loose").value = product.loose_code || "";
-            }
-        } else {
-            row.querySelector(".name").value = "";
+            nameInput.value = product.name || "";
+            looseInput.value = product.loose_code || "";
         }
     });
 
+    /* ===== NAME → ALL ===== */
+    nameInput.addEventListener("input", function () {
+        const val = this.value?.trim().toLowerCase();
+
+        const product = products.find(p =>
+            (p.name ?? "").toLowerCase() === val
+        );
+
+        if (product) {
+            codeInput.value = product.code || "";
+            looseInput.value = product.loose_code || "";
+        }
+    });
+
+    /* ===== LOOSE → ALL ===== */
+    looseInput.addEventListener("input", function () {
+        const val = this.value?.trim();
+
+        const product = products.find(p => (p.loose_code ?? "") == val);
+
+        if (product) {
+            codeInput.value = product.code || "";
+            nameInput.value = product.name || "";
+        }
+    });
+
+    /* ===== CALCULATION ===== */
     row.querySelectorAll(".bags,.qty").forEach(input => {
         input.addEventListener("input", calculateRow);
     });
@@ -131,7 +177,6 @@ function updateTotals() {
 async function saveTransaction() {
     try {
         const rows = document.querySelectorAll("#itemTable tbody tr");
-
         let items = [];
 
         rows.forEach(row => {
@@ -176,7 +221,7 @@ async function saveTransaction() {
 
     } catch (err) {
         console.log("SAVE ERROR:", err);
-        alert("❌ Save failed (check backend & API)");
+        alert("❌ Save failed");
     }
 }
 
